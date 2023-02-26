@@ -1,0 +1,4 @@
+(executable
+ (public_name todo_finder)
+ (name main)
+ (libraries todo_finder core))
