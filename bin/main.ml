@@ -11,7 +11,7 @@ let find_todo_in_line line_idx content =
   let search = 
     content
     |> String.lowercase
-    |> String.substr_index ~pattern:"todo:" in
+    |> String.substr_index ~pattern:"todo" in
   match search with
   | Some(pos) -> Some({content; pos; line_nb = line_idx + 1})
   | None      -> None
@@ -27,21 +27,29 @@ let print_todo {content; line_nb; pos} =
 (* /Todo module *)
 
 (* Filesystem logic *)
-let is_dir_explorable s = Char.(String.get s 0 <> '.')
+let is_dir_explorable s = 
+  String.(Filename.current_dir_name <> s)
+  && String.(Filename.parent_dir_name <> s)
+  && String.(s <> ".git")
+  && String.(s <> ".gitignore")
+  && Char.(String.get s 0 <> '_')
 
 let rec iter_dir ~f dirname =
-  let open Core_unix in
-  (* todo move Sys_unix.is_directory here *)
-  let d = opendir dirname in 
-  try while true do 
-    match readdir_opt d with 
-    | None    -> raise End_of_file
-    | Some(s) -> let child = Filename.concat dirname s in
-      match Sys_unix.is_directory child with
-      | `Yes     -> if is_dir_explorable s then iter_dir ~f child
-      | `No      -> f child
-      | `Unknown -> failwith ("Unknown filetype: " ^ child)
-  done with End_of_file -> closedir d
+  (* printf "Scanning: %s \n"dirname; *)
+  let handle_dir dir =
+    let open Core_unix in
+    let d = opendir dir in 
+    try while true do 
+      match readdir_opt d with 
+      | None    -> raise End_of_file
+      | Some(s) -> if is_dir_explorable s then 
+        iter_dir ~f (Filename.concat dir s)
+    done with End_of_file -> closedir d in
+  
+  match Sys_unix.is_directory dirname with
+  | `Yes     -> handle_dir dirname
+  | `No      -> f dirname
+  | `Unknown -> failwith ("Unknown filetype: " ^ dirname)
 
 let read_file filename =
   let todos = filename
@@ -54,7 +62,7 @@ let read_file filename =
 
 let get_input_filename_exn args =
   if Array.length args < 2 then
-    failwith "Please provide a file/directory name, or `.` to scan the current directory!"
+    failwith "Please provide a file, or directory name, or `.` to scan the current directory!"
   else if Array.length args > 2 then
     failwith "Too many args!";
   Array.get args 1

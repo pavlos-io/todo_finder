@@ -5,22 +5,21 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github pavlos-io/todo_finder))
 
-(authors "Author Name")
+(authors "Paul Maltsev")
 
-(maintainers "Maintainer Name")
+(maintainers "Paul Maltsev")
 
 (license LICENSE)
 
-(documentation https://url/to/documentation)
+(documentation "https://github.com/pavlos-io/todo_finder")
 
 (package
  (name todo_finder)
- (synopsis "A short synopsis")
- (description "A longer description")
+ (synopsis "Finds todos in codebase")
+ (description "A simple tool that scans the provided dir/file and outputs the lines where a todo was found.")
  (depends ocaml dune)
- (tags
-  (topics "to describe" your project)))
+)
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
