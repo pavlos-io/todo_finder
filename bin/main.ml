@@ -4,7 +4,6 @@ open Core
 type todo = 
   { content : string
   ; line_nb : int
-  ; pos : int
   }
 
 let find_todo_in_line line_idx content = 
@@ -13,7 +12,7 @@ let find_todo_in_line line_idx content =
     |> String.lowercase
     |> String.substr_index ~pattern:"todo" in
   match search with
-  | Some(pos) -> Some({content; pos; line_nb = line_idx + 1})
+  | Some(_) -> Some({content; line_nb = line_idx + 1})
   | None      -> None
   
 let find_todos_in_file contents = 
@@ -22,8 +21,8 @@ let find_todos_in_file contents =
   |> List.mapi ~f:find_todo_in_line
   |> List.filter_opt
 
-let print_todo {content; line_nb; pos} =
-  printf "Line %d:%d: %s \n" line_nb pos content
+let print_todo {content; line_nb} =
+  printf "Line %d: %s \n" line_nb content
 (* /Todo module *)
 
 (* Filesystem logic *)
